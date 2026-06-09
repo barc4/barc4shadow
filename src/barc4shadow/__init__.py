@@ -1,6 +1,6 @@
 
-from .beamline import beamline_to_layout
+from .beamline import s4_beamline_to_layout
 
 __all__ = [
-    "beamline_to_layout",
+    "s4_beamline_to_layout",
 ]
