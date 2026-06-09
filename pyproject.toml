@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=65.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "barc4shadow"
+version = "2026.06.09"
+description= "A Python package Shadow auxiliary funcitons"
+readme = "README.md"
+license = "CECILL-2.1"
+authors = [{ name = "Rafael Celestre", email = "rafael.celestre@esrf.eu"}]
+keywords = ["shadow", "shadow4", "ray-tracing", "oasys", "oasys2"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Physics"
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "shadow4",
+]
+[project.urls]
+Homepage = "https://github.com/barc4/barc4shadow"
+Repository = "https://github.com/barc4/barc4shadow"
+
+[tool.setuptools.packages.find]
+where = ["src"]
