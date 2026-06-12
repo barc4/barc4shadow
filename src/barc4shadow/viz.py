@@ -1,23 +1,25 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+_PAIRED = plt.get_cmap("Paired").colors
 
 _DEFAULT_COLOR_MAP = {
     "SRC": "darkred",
-    "M": "olive",
-    "ML": "darkgreen",
-    "C": "indigo",
-    "G": "steelblue",
-    "S": "teal",
-    "L": "peru",
-    "CRL": "darkorange",
-    "CMP": "slategray",
-    "O": "teal",
-    "X": "peru",
+    "M": _PAIRED[0],
+    "ML": _PAIRED[1],
+    "C": _PAIRED[2],
+    "G": _PAIRED[3],
+    "BS": _PAIRED[4],
+    "F": _PAIRED[5],
+    "L": _PAIRED[6],
+    "CRL": _PAIRED[7],
+    "CMP": _PAIRED[8],
+    "O": _PAIRED[9],
 }
 
 _DEFAULT_MARKER_MAP = {
@@ -26,12 +28,13 @@ _DEFAULT_MARKER_MAP = {
     "ML": "H",
     "C": "p",
     "G": "D",
-    "S": "o",
     "L": "^",
     "CRL": "v",
     "CMP": "h",
     "O": "o",
-    "X": "X",
+    "SL": "|",
+    "BS": "x",
+    "F":  "P",
 }
 
 _DEFAULT_LEGEND_MAP = {
@@ -40,12 +43,13 @@ _DEFAULT_LEGEND_MAP = {
     "ML": "multilayer",
     "C": "crystal",
     "G": "grating",
-    "S": "screen",
     "L": "lens",
     "CRL": "CRL",
     "CMP": "compound",
     "O": "obs. point",
-    "X": "obs. point",
+    "SL": "slit",
+    "BS": "obstruction",
+    "F":  "filter",
 }
 
 
@@ -132,7 +136,7 @@ def plot_beamline(
 
     def display_kind(i: int) -> str:
         if show_experiment and i == len(kinds) - 1 and kinds[i] == "E":
-            return "X"
+            return "O"
         return kinds[i]
 
     def style(ax, ylabel: str) -> None:
@@ -153,7 +157,10 @@ def plot_beamline(
 
         for i in idxs:
             kind = display_kind(i)
-            color = _DEFAULT_COLOR_MAP.get(kind, "black")
+            if kind == "SL":
+                color = "black"
+            else:
+                color = _DEFAULT_COLOR_MAP.get(kind, "black")
             marker = _DEFAULT_MARKER_MAP.get(kind, "o")
             label = _DEFAULT_LEGEND_MAP.get(kind) if add_legend and kind not in seen else None
             seen.add(kind)
@@ -166,13 +173,26 @@ def plot_beamline(
                     marker=marker,
                     markerfacecolor=color,
                     markeredgecolor="black",
-                    markeredgewidth=0.8,
+                    markeredgewidth=0.75,
                     fillstyle="left",
-                    markersize=9,
+                    markersize=10,
                     zorder=3,
                     label=label,
                 )
-            elif kind in {"M", "ML", "G", "C", "S", "L", "CRL", "CMP"}:
+            elif kind == "SL":
+                    ax.plot(
+                        y[i],
+                        V[i],
+                        linestyle="none",
+                        marker=marker,
+                        markerfacecolor=color,
+                        markeredgecolor="black",
+                        markeredgewidth=1,
+                        markersize=10,
+                        zorder=3,
+                        label=label,
+                    )
+            elif kind in {"M", "ML", "G", "C", "L", "CRL", "CMP", "F"}:
                 ax.plot(
                     y[i],
                     V[i],
@@ -180,8 +200,8 @@ def plot_beamline(
                     marker=marker,
                     markerfacecolor=color,
                     markeredgecolor="black",
-                    markeredgewidth=0.5,
-                    markersize=9,
+                    markeredgewidth=0.75,
+                    markersize=10,
                     zorder=3,
                     label=label,
                 )
@@ -193,8 +213,8 @@ def plot_beamline(
                     marker=marker,
                     markerfacecolor=color,
                     markeredgecolor="black",
-                    markeredgewidth=0.5,
-                    markersize=11,
+                    markeredgewidth=0.75,
+                    markersize=10,
                     zorder=3,
                     label=label,
                 )
@@ -273,25 +293,25 @@ def plot_beamline(
 
         return xlim, ylim, fig_height
 
-    def plot_scaled_view(
-        which: str,
-        title: str,
-        ylabel: str,
-        add_legend: bool,
-        xlim: tuple[float, float],
-        ylim: tuple[float, float],
-        fig_height: float,
-    ) -> None:
-        fig, ax = plt.subplots(figsize=(scale_fig_width, fig_height))
-        fig.suptitle(title, fontsize=16 * k)
+    # def plot_scaled_view(
+    #     which: str,
+    #     title: str,
+    #     ylabel: str,
+    #     add_legend: bool,
+    #     xlim: tuple[float, float],
+    #     ylim: tuple[float, float],
+    #     fig_height: float,
+    # ) -> None:
+    #     fig, ax = plt.subplots(figsize=(scale_fig_width, fig_height))
+    #     fig.suptitle(title, fontsize=16 * k)
 
-        style(ax, ylabel)
-        plot_points(ax, which=which, add_legend=add_legend)
+    #     style(ax, ylabel)
+    #     plot_points(ax, which=which, add_legend=add_legend)
 
-        ax.set_xlabel("[m]")
-        ax.set_xlim(*xlim)
-        ax.set_ylim(*ylim)
-        ax.set_aspect("equal", adjustable="box")
+    #     ax.set_xlabel("[m]")
+    #     ax.set_xlim(*xlim)
+    #     ax.set_ylim(*ylim)
+    #     ax.set_aspect("equal", adjustable="box")
 
     if draw_to_scale:
         xlim, ylim, fig_height = common_scaled_limits()
@@ -470,7 +490,7 @@ def plot_beamline_configs(
 
     def display_kind(kinds: list[str], i: int) -> str:
         if show_experiment and i == len(kinds) - 1 and kinds[i] == "E":
-            return "X"
+            return "O"
         return kinds[i]
 
     def style(ax, ylabel: str) -> None:
@@ -514,12 +534,24 @@ def plot_beamline_configs(
                         marker=marker,
                         markerfacecolor=color,
                         markeredgecolor="black",
-                        markeredgewidth=0.8,
+                        markeredgewidth=0.75,
                         fillstyle="left",
-                        markersize=9,
+                        markersize=10,
                         zorder=3,
                     )
-                elif kind in {"M", "ML", "G", "C", "S", "L", "CRL", "CMP"}:
+                elif kind == "SL":
+                    ax.plot(
+                        y[i],
+                        V[i],
+                        linestyle="none",
+                        marker=marker,
+                        markerfacecolor=color,
+                        markeredgecolor=color,
+                        markeredgewidth=1,
+                        markersize=10,
+                        zorder=3,
+                    )
+                elif kind in {"M", "ML", "G", "C", "L", "CRL", "CMP", "F"}:
                     ax.plot(
                         y[i],
                         V[i],
@@ -527,8 +559,8 @@ def plot_beamline_configs(
                         marker=marker,
                         markerfacecolor=color,
                         markeredgecolor="black",
-                        markeredgewidth=0.5,
-                        markersize=9,
+                        markeredgewidth=0.75,
+                        markersize=10,
                         zorder=3,
                     )
                 else:
@@ -539,8 +571,8 @@ def plot_beamline_configs(
                         marker=marker,
                         markerfacecolor=color,
                         markeredgecolor="black",
-                        markeredgewidth=0.5,
-                        markersize=11,
+                        markeredgewidth=0.75,
+                        markersize=10,
                         zorder=3,
                     )
 

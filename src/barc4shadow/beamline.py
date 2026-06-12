@@ -30,7 +30,16 @@ def s4_beamline_to_layout(beamline) -> dict:
         if isinstance(oe, S4Grating):
             return "G"
         if isinstance(oe, S4Screen):
-            return "S"
+            boundary_shape = oe.get_boundary_shape()
+            if oe._i_abs > 0:
+                return "F"      # filter
+            if boundary_shape is None:
+                return "O"      # screen
+            if oe._i_stop == 0:
+                return "SL"     # slit/aperture
+            if oe._i_stop == 1:
+                return "BS"     # obstruction
+            return "O"
         if isinstance(oe, (S4CRL, S4Transfocator)):
             return "CRL"
         if isinstance(oe, S4Lens):
@@ -72,7 +81,7 @@ def s4_beamline_to_layout(beamline) -> dict:
         labels.append(label if label else f"OE {i + 1}")
         kinds.append(_kind_from_oe(oe))
 
-    append_final_image = kinds[-1] not in {"S", "E"}
+    append_final_image = kinds[-1] not in {"O", "E"}
 
     x = np.asarray(positions["optical_axis_x"], dtype=float)
     y = np.asarray(positions["optical_axis_y"], dtype=float)
