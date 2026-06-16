@@ -5,9 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "barc4shadow"
 version = "2026.06.09"
-description= "A Python package Shadow auxiliary funcitons"
+description = "Auxiliary functions for SHADOW4 beamlines"
 readme = "README.md"
-license = "CECILL-2.1"
+license = { file = "LICENSE" }
 authors = [{ name = "Rafael Celestre", email = "rafael.celestre@esrf.eu"}]
 keywords = ["shadow", "shadow4", "ray-tracing", "oasys", "oasys2"]
 classifiers = [
@@ -18,6 +18,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "matplotlib",
     "numpy",
     "shadow4",
 ]

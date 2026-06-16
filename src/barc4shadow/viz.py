@@ -5,6 +5,7 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import rcParamsDefault
 
 _PAIRED = plt.get_cmap("Paired").colors
 
@@ -60,9 +61,10 @@ def plot_beamline(
     show_experiment: bool = True,
     draw_to_scale: bool = False,
     k: float = 1.0,
-    min_transverse_half_range: float | None = 1e-6,
+    min_transverse_half_range: float | None = 10e-6,
     scale_transverse_fraction: float = 0.20,
-) -> None:
+    plot: bool = True,
+):
     """
     Plot a beamline layout.
 
@@ -87,6 +89,13 @@ def plot_beamline(
     scale_transverse_fraction : float, optional
         Minimum full transverse span as a fraction of the optical-axis span
         when ``draw_to_scale=True``.
+    plot : bool, optional
+        If True, call ``plt.show()`` before returning.
+
+    Returns
+    -------
+    fig, (ax_top, ax_side)
+        The Matplotlib figure and top/side axes.
     """
     scale_fig_width = 12.0
     scale_min_fig_height = 2.5
@@ -151,7 +160,7 @@ def plot_beamline(
     def plot_points(ax, which: str, add_legend: bool = True) -> None:
         V = x if which == "top" else z
 
-        ax.plot(y[idxs], V[idxs], color="0.6", lw=0.8, zorder=1)
+        ax.plot(y[idxs], V[idxs], color="dimgray", lw=1.5, zorder=1)
 
         seen = set()
 
@@ -187,7 +196,7 @@ def plot_beamline(
                         marker=marker,
                         markerfacecolor=color,
                         markeredgecolor="black",
-                        markeredgewidth=1,
+                        markeredgewidth=2,
                         markersize=10,
                         zorder=3,
                         label=label,
@@ -343,7 +352,11 @@ def plot_beamline(
         ax_side.set_aspect("equal", adjustable="box")
 
         plt.tight_layout(rect=[0, 0, 1, 0.95])
-        plt.show()
+
+        if plot:
+            plt.show()
+
+        return fig, (ax_top, ax_side)
 
     else:
         fig, (ax_top, ax_side) = plt.subplots(
@@ -367,7 +380,11 @@ def plot_beamline(
         apply_min_transverse_range(ax_side, z[idxs])
 
         plt.tight_layout(rect=[0, 0, 1, 0.95])
-        plt.show()
+
+        if plot:
+            plt.show()
+
+        return fig, (ax_top, ax_side)
 
 def plot_beamline_configs(
     configs: Sequence[dict[str, Any]],
@@ -379,7 +396,8 @@ def plot_beamline_configs(
     k: float = 1.0,
     min_transverse_half_range: float | None = 1e-6,
     scale_transverse_fraction: float = 0.20,
-) -> None:
+    plot: bool = True,
+):
     """
     Overlay multiple beamline layouts.
 
@@ -405,6 +423,13 @@ def plot_beamline_configs(
     scale_transverse_fraction : float, optional
         Minimum full transverse span as a fraction of the optical-axis span
         when ``draw_to_scale=True``.
+    plot : bool, optional
+        If True, call ``plt.show()`` before returning.
+
+    Returns
+    -------
+    fig, (ax_top, ax_side)
+        The Matplotlib figure and top/side axes.
     """
     scale_fig_width = 12.0
     scale_min_fig_height = 2.5
@@ -426,17 +451,7 @@ def plot_beamline_configs(
             f"got {len(config_labels)}."
         )
 
-    config_colors = [
-        "darkred",
-        "olive",
-        "steelblue",
-        "teal",
-        "peru",
-        "slategray",
-        "darkgreen",
-        "indigo",
-        "darkorange",
-    ]
+    config_colors = plt.get_cmap("tab10").colors
 
     prepared = []
 
@@ -516,8 +531,8 @@ def plot_beamline_configs(
                 y[idxs],
                 V[idxs],
                 color=color,
-                lw=1.0,
-                alpha=0.75,
+                lw=1.5,
+                alpha=1,
                 zorder=1,
                 label=data["label"] if add_legend else None,
             )
@@ -547,7 +562,7 @@ def plot_beamline_configs(
                         marker=marker,
                         markerfacecolor=color,
                         markeredgecolor=color,
-                        markeredgewidth=1,
+                        markeredgewidth=2,
                         markersize=10,
                         zorder=3,
                     )
@@ -693,7 +708,11 @@ def plot_beamline_configs(
         ax_side.set_aspect("equal", adjustable="box")
 
         plt.tight_layout(rect=[0, 0, 1, 0.95])
-        plt.show()
+
+        if plot:
+            plt.show()
+
+        return fig, (ax_top, ax_side)
 
     else:
         fig, (ax_top, ax_side) = plt.subplots(
@@ -717,4 +736,38 @@ def plot_beamline_configs(
         apply_min_transverse_range(ax_side, all_axis_values("z"))
 
         plt.tight_layout(rect=[0, 0, 1, 0.95])
-        plt.show()
+
+        if plot:
+            plt.show()
+
+        return fig, (ax_top, ax_side)
+
+def start_plotting(k: float = 1.0) -> None:
+    """
+    Set global Matplotlib plot parameters scaled by factor k.
+
+    Parameters
+    ----------
+    k : float, optional
+        Scaling factor for font sizes (1.0 = baseline).
+    """
+
+    plt.rcParams.update(rcParamsDefault)
+
+    plt.rcParams.update({
+        "text.usetex": False,
+        "font.family": "DejaVu Serif",
+        "font.serif": ["Times New Roman"],
+    })
+
+    plt.rc("axes",   titlesize=12. * k, labelsize=12. * k)
+    plt.rc("xtick",  labelsize=11. * k)
+    plt.rc("ytick",  labelsize=11. * k)
+    plt.rc("legend", fontsize=11.* k)
+
+    plt.rcParams.update({
+        "axes.grid": False,
+        "savefig.bbox": "tight",
+        "axes.spines.right": True,
+        "axes.spines.top":   True,
+    })
