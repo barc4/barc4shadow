@@ -33,3 +33,5 @@ Python 3.10 or newer, with `numpy`, `matplotlib`, and `shadow4`.
 ---
 
 [![License: CeCILL-2.1](https://img.shields.io/badge/license-CeCILL--2.1-blue.svg)](https://opensource.org/licenses/CECILL-2.1)
+[![DOI](https://zenodo.org/badge/1263952255.svg)](https://doi.org/10.5281/zenodo.20734775)
+
