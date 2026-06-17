@@ -12,6 +12,7 @@ def s4_beamline_to_layout(beamline) -> dict:
     from shadow4.beamline.optical_elements.crystals.s4_crystal import S4Crystal
     from shadow4.beamline.optical_elements.gratings.s4_grating import S4Grating
     from shadow4.beamline.optical_elements.ideal_elements.s4_empty import S4Empty
+    from shadow4.beamline.optical_elements.ideal_elements.s4_ideal_lens import S4IdealLens
     from shadow4.beamline.optical_elements.mirrors.s4_mirror import S4Mirror
     from shadow4.beamline.optical_elements.multilayers.s4_multilayer import S4Multilayer
     from shadow4.beamline.optical_elements.refractors.s4_crl import S4CRL
@@ -42,7 +43,7 @@ def s4_beamline_to_layout(beamline) -> dict:
             return "O"
         if isinstance(oe, (S4CRL, S4Transfocator)):
             return "CRL"
-        if isinstance(oe, S4Lens):
+        if isinstance(oe, (S4Lens,S4IdealLens)):
             return "L"
         if isinstance(oe, S4Compound):
             return "CMP"
@@ -72,6 +73,7 @@ def s4_beamline_to_layout(beamline) -> dict:
 
     for i, element in enumerate(beamline.get_beamline_elements()):
         oe = element.get_optical_element()
+        # print(f"OE {i + 1}: {oe.get_name()} ({_kind_from_oe(oe)})")
 
         try:
             label = str(oe.get_name()).strip()
@@ -81,11 +83,17 @@ def s4_beamline_to_layout(beamline) -> dict:
         labels.append(label if label else f"OE {i + 1}")
         kinds.append(_kind_from_oe(oe))
 
-    append_final_image = kinds[-1] not in {"O", "E"}
-
     x = np.asarray(positions["optical_axis_x"], dtype=float)
     y = np.asarray(positions["optical_axis_y"], dtype=float)
     z = np.asarray(positions["optical_axis_z"], dtype=float)
+
+    mirr = np.asarray(positions["mirr"], dtype=float)
+    star = np.asarray(positions["star"], dtype=float)
+
+    last_mirr = mirr[:, -1]
+    last_star = star[:, -1]
+
+    append_final_image = not np.allclose(last_mirr, last_star)
 
     if append_final_image:
         labels.append("Final image")
