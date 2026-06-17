@@ -1,3 +1,35 @@
 # barc4shadow
 
-WIP
+Small helper package for SHADOW4 beamlines.
+
+It converts SHADOW4 beamlines into a simple layout dictionary and provides
+Matplotlib plotting utilities for single or overlaid beamline configurations.
+
+## Install
+
+```bash
+pip install barc4shadow
+```
+
+For local development:
+
+```bash
+pip install -e .
+```
+
+## Usage
+
+```python
+from barc4shadow import s4_beamline_to_layout, plot_beamline
+
+layout = s4_beamline_to_layout(beamline)
+plot_beamline(layout)
+```
+
+## Requirements
+
+Python 3.10 or newer, with `numpy`, `matplotlib`, and `shadow4`.
+
+---
+
+[![License: CeCILL-2.1](https://img.shields.io/badge/license-CeCILL--2.1-blue.svg)](https://opensource.org/licenses/CECILL-2.1)
