@@ -21,6 +21,7 @@ _DEFAULT_COLOR_MAP = {
     "CRL": _PAIRED[7],
     "CMP": _PAIRED[8],
     "O": _PAIRED[9],
+    "E": "black",
 }
 
 _DEFAULT_MARKER_MAP = {
@@ -36,6 +37,7 @@ _DEFAULT_MARKER_MAP = {
     "SL": "|",
     "BS": "x",
     "F":  "P",
+    "E": "$\u2205$",
 }
 
 _DEFAULT_LEGEND_MAP = {
@@ -51,6 +53,7 @@ _DEFAULT_LEGEND_MAP = {
     "SL": "slit",
     "BS": "obstruction",
     "F":  "filter",
+    "E": "empty",
 }
 
 
@@ -59,6 +62,7 @@ def plot_beamline(
     *,
     show_source: bool = True,
     show_experiment: bool = True,
+    show_empty_elements: bool = False,
     draw_to_scale: bool = False,
     k: float = 1.0,
     min_transverse_half_range: float | None = 10e-6,
@@ -78,6 +82,8 @@ def plot_beamline(
     show_experiment : bool, optional
         If True and the final element is empty, display it as an observation
         point using kind ``X``.
+    show_empty_elements : bool, optional
+        If True, display empty elements using kind ``E``.
     draw_to_scale : bool, optional
         If True, draw separate top and side views with equal metric scale.
     k : float, optional
@@ -134,7 +140,7 @@ def plot_beamline(
             continue
 
         if kind == "E":
-            if show_experiment and is_last:
+            if show_empty_elements or (show_experiment and is_last):
                 idxs.append(i)
             continue
 
@@ -392,6 +398,7 @@ def plot_beamline_configs(
     *,
     show_source: bool = True,
     show_experiment: bool = True,
+    show_empty_elements: bool = False,
     draw_to_scale: bool = False,
     k: float = 1.0,
     min_transverse_half_range: float | None = 1e-6,
@@ -413,6 +420,8 @@ def plot_beamline_configs(
     show_experiment : bool, optional
         If True and the final element is empty, display it as an observation
         point using kind ``X``.
+    show_empty_elements : bool, optional
+        If True, display empty elements using kind ``E``.
     draw_to_scale : bool, optional
         If True, draw top and side views with equal metric scale.
     k : float, optional
@@ -482,7 +491,7 @@ def plot_beamline_configs(
                 continue
 
             if kind == "E":
-                if show_experiment and is_last:
+                if show_empty_elements or (show_experiment and is_last):
                     idxs.append(i)
                 continue
 
