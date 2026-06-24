@@ -3,6 +3,22 @@ from __future__ import annotations
 import numpy as np
 
 
+def _get_layout_beamline(beamline):
+    from shadow4.sources.s4_light_source_from_beamlines import S4LightSourceFromBeamlines
+
+    light_source = beamline.get_light_source()
+
+    if isinstance(light_source, S4LightSourceFromBeamlines):
+        beamlines = light_source._beamlines
+
+        if len(beamlines) == 0:
+            raise ValueError("Accumulated beamline has no child beamlines.")
+
+        return beamlines[0]
+
+    return beamline
+
+
 def s4_beamline_to_layout(beamline) -> dict:
     """
     Convert a SHADOW4 S4Beamline into a normalized beamline layout dictionary.
@@ -18,6 +34,8 @@ def s4_beamline_to_layout(beamline) -> dict:
     from shadow4.beamline.optical_elements.refractors.s4_crl import S4CRL
     from shadow4.beamline.optical_elements.refractors.s4_lens import S4Lens
     from shadow4.beamline.optical_elements.refractors.s4_transfocator import S4Transfocator
+
+    beamline = _get_layout_beamline(beamline)
 
     def _kind_from_oe(oe) -> str:
         if isinstance(oe, S4Empty):
